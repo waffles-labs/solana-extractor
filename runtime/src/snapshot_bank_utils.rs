@@ -1,3 +1,4 @@
+use solana_measure::measure;
 use {
     crate::{
         bank::{Bank, BankFieldsToDeserialize, BankSlotDelta},
@@ -37,7 +38,7 @@ use {
         accounts_update_notifier_interface::AccountsUpdateNotifier,
         utils::delete_contents_of_path,
     },
-    solana_measure::{measure, measure::Measure},
+    solana_measure::measure::Measure,
     solana_sdk::{
         clock::Slot,
         feature_set,
@@ -56,7 +57,6 @@ use {
     },
     tempfile::TempDir,
 };
-
 pub const DEFAULT_FULL_SNAPSHOT_ARCHIVE_INTERVAL_SLOTS: Slot = 25_000;
 pub const DEFAULT_INCREMENTAL_SNAPSHOT_ARCHIVE_INTERVAL_SLOTS: Slot = 100;
 pub const DISABLED_SNAPSHOT_ARCHIVE_INTERVAL: Slot = Slot::MAX;

@@ -17,7 +17,7 @@ use {
 };
 
 fn get_mint_decimals(bank: &Bank, mint: &Pubkey) -> Option<u8> {
-    if mint == &spl_token::native_mint::id() {
+    if mint == &solana_sdk::pubkey::Pubkey::from(spl_token::native_mint::id().to_bytes()) {
         Some(spl_token::native_mint::DECIMALS)
     } else {
         let mint_account = bank.get_account(mint)?;
@@ -102,11 +102,15 @@ fn collect_token_balance_from_account(
     let token_account = StateWithExtensions::<TokenAccount>::unpack(account.data()).ok()?;
     let mint = token_account.base.mint;
 
-    let decimals = mint_decimals.get(&mint).cloned().or_else(|| {
-        let decimals = get_mint_decimals(bank, &mint)?;
-        mint_decimals.insert(mint, decimals);
-        Some(decimals)
-    })?;
+    let decimals = mint_decimals
+        .get(&solana_sdk::pubkey::Pubkey::from(mint.to_bytes()))
+        .cloned()
+        .or_else(|| {
+            let decimals =
+                get_mint_decimals(bank, &solana_sdk::pubkey::Pubkey::from(mint.to_bytes()))?;
+            mint_decimals.insert(solana_sdk::pubkey::Pubkey::from(mint.to_bytes()), decimals);
+            Some(decimals)
+        })?;
 
     Some(TokenBalanceData {
         mint: token_account.base.mint.to_string(),

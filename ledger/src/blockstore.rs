@@ -311,6 +311,29 @@ impl Blockstore {
         Self::do_open(ledger_path, options)
     }
 
+    pub fn blockstore_from_gcs_rocksdb(ledger_path: &Path) -> Result<Blockstore> {
+        Blockstore::open_with_options(
+            ledger_path,
+            BlockstoreOptions {
+                access_type: AccessType::Primary,
+                recovery_mode: None,
+                enforce_ulimit_nofile: true,
+                ..BlockstoreOptions::default()
+            },
+        )
+        .or_else(|_| {
+            Blockstore::open_with_options(
+                ledger_path,
+                BlockstoreOptions {
+                    access_type: AccessType::Secondary,
+                    recovery_mode: None,
+                    enforce_ulimit_nofile: true,
+                    ..BlockstoreOptions::default()
+                },
+            )
+        })
+    }
+
     fn do_open(ledger_path: &Path, options: BlockstoreOptions) -> Result<Blockstore> {
         fs::create_dir_all(ledger_path)?;
         let blockstore_path = ledger_path.join(
